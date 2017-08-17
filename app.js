@@ -33,7 +33,7 @@ passport.use(
           done(null, user);
         } else {
           done(null, null, {
-            message: 'There was no user with this email and password.'
+            message: 'No user with this email and password.'
           });
         }
       })
