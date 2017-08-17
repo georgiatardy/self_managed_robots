@@ -2,11 +2,10 @@ const mongoose = require('mongoose');
 const bcrypt = require('bcryptjs');
 // const findOrCreate = require('mongoose-findorcreate');
 
-// get a reference to Schema
 const Schema = mongoose.Schema;
 
-// create a schema for a user
-const robotSchema = new Schema({
+// ==== Schema ==== //
+const robotsSchema = new Schema({
   id: {
     type: String
   },
@@ -72,24 +71,23 @@ const robotSchema = new Schema({
   }
 });
 
-// userSchema.plugin(findOrCreate);
 
-robotSchema.methods.setPassword = function(password) {
+robotsSchema.methods.setPassword = function(password) {
   this.passwordHash = bcrypt.hashSync(password, 8);
 };
 
-// individual users can authenticate their passwordHash
-robotSchema.methods.validatePassword = function(password) {
+
+robotsSchema.methods.validatePassword = function(password) {
   return bcrypt.compareSync(password, this.passwordHash);
 };
 
-// static method to authenticate a user
-robotSchema.statics.authenticate = function(email, password) {
+
+robotsSchema.statics.authenticate = function(email, password) {
   return (
     User.findOne({
       email: email
     })
-    // validate the user's password
+
     .then(user => {
       if (user && user.validatePassword(password)) {
         return user;
@@ -98,10 +96,10 @@ robotSchema.statics.authenticate = function(email, password) {
       }
     })
   );
-  //.then(user => console.log('matched user: ', user));
+
 };
 
-// create a model for a User
-const User = mongoose.model('Robot', robotSchema);
 
+const User = mongoose.model('Robot', robotsSchema);
+console.log(User);
 module.exports = User;

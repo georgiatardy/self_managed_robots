@@ -1,23 +1,20 @@
 //===Packages===//
 
 const fs = require('fs');
-const robots = require('./routes/robots');
-const db = require('./db');
-// const LocalStrategy = require('passport-local').Strategy
-
+const robotRoutes = require('./routes/robots');
 const express = require('express');
-// const bcryptjs = require('bcryptjs');
 const flash = require('express-flash-messages');
 const session = require('express-session');
-// const mongodb = require('mongodb');
-// const mongoose = require('mongoose');
+const mongodb = require('mongodb');
+const mongoose = require('mongoose');
 const passport = require('passport');
 const passportLocal = require('passport-local').Strategy
 const bodyParser = require('body-parser');
 const handlebars = require('express-handlebars');
 let url = 'mongodb://localhost:27017/robotDatabase';
 const app = express();
-// const robots = ('./routes/robots');
+const Robot = require('./models/robot');
+
 
 
 // ================= Boilerplate ================ //
@@ -54,7 +51,9 @@ passport.deserializeUser(function(user, done) {
 // === Middleware to parse form data === //
 
 app.use(bodyParser.json());
-app.use(bodyParser.urlencoded({extended: false}));
+app.use(bodyParser.urlencoded({
+  extended: false
+}));
 
 
 // === For Handlebars Express === //
@@ -82,26 +81,28 @@ app.use(flash());
 // === Local Login Form === //
 
 app.get('/login', (req, res) => {
-  res.render('login', { failed: req.query.failed });
+  res.render('login', {
+    failed: req.query.failed
+  });
 });
 
-app.post(
-  '/login',
-  passport.authenticate('local', {
-    successRedirect: '/',
-    failureRedirect: '/login?failed=true',
-    failureFlash: true
-  })
-);
+app.post('/login', passport.authenticate('local', {
+  successRedirect: '/',
+  failureRedirect: '/login?failed=true',
+  failureFlash: true
+}));
 
 app.get('/register', (req, res) => {
   res.render('register');
 });
 
 app.post('/register', (req, res) => {
+
   let robot = new Robot(req.body);
   robot.provider = 'local';
+
   robot.setPassword(req.body.password);
+
 
   robot
     .save()
@@ -110,6 +111,8 @@ app.post('/register', (req, res) => {
     // if bad...
     .catch(err => console.log(err));
 });
+
+
 
 // === Log out === //
 app.get('/logout', function(req, res) {
@@ -120,15 +123,13 @@ app.get('/logout', function(req, res) {
 // ========Connection to Robot Database==== //
 
 
-app.use('/', robots);
+app.use('/', robotRoutes);
 
 
-db.connect(url, (err, connection) => {
-  if (!err)
-    console.log('connected to Mongo.');
 
-
+mongoose.connect(url, { useMongoClient: true })
+.then(() => {
   app.listen(3000, function() {
     console.log('App is running!');
   });
-})
+});
