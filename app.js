@@ -82,7 +82,7 @@ app.use(flash());
 // === Local Login Form === //
 
 app.get('/login', (req, res) => {
-  res.render('loginForm', { failed: req.query.failed });
+  res.render('login', { failed: req.query.failed });
 });
 
 app.post(
@@ -95,7 +95,7 @@ app.post(
 );
 
 app.get('/register', (req, res) => {
-  res.render('registerForm');
+  res.render('register');
 });
 
 app.post('/register', (req, res) => {
